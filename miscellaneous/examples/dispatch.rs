@@ -1,3 +1,5 @@
+#![allow(unused)]
+
 use anyhow::Result;
 use enum_dispatch::enum_dispatch;
 use std::env;
@@ -43,8 +45,8 @@ fn main() -> Result<()> {
     };
 
     let app_state = match r#type.as_str() {
-        "cat" => AppState::Cat(Cat("mimi".to_owned())),
-        "dog" => AppState::Dog(Dog("wowo".to_owned())),
+        "cat" => AnimalCategory::Cat(Cat("mimi".to_owned())),
+        "dog" => AnimalCategory::Dog(Dog("wowo".to_owned())),
         _ => unimplemented!("animal type: {}", r#type),
     };
 
@@ -53,7 +55,7 @@ fn main() -> Result<()> {
 }
 
 #[enum_dispatch(Animal)]
-enum AppState {
+enum AnimalCategory {
     Cat(Cat),
     Dog(Dog),
 }
@@ -89,28 +91,23 @@ impl Animal for Dog {
     }
 }
 
-#[allow(dead_code)]
 fn say_name_dyn(animal: &dyn Animal) {
     println!("say_name_dyn [{}]", animal.name())
 }
 
-#[allow(dead_code)]
 fn say_name_dyn_box(animal: Box<dyn Animal>) {
     println!("say_name_dyn_box [{}]", animal.name())
 }
 
-#[allow(dead_code)]
 fn say_name_impl(animal: impl Animal) {
     println!("say_name_impl [{}]", animal.name())
 }
 
-#[allow(dead_code)]
 fn say_name_generics<T: Animal>(animal: T) {
     println!("say_name_generics [{}]", animal.name())
 }
 
-#[allow(dead_code)]
-fn say_name_enum(status: AppState) {
+fn say_name_enum(category: AnimalCategory) {
     // Normal
     // let name = match status {
     //     AppState::Cat(cat) => cat.0,
@@ -122,5 +119,5 @@ fn say_name_enum(status: AppState) {
     // println!("say_name_enum [{}]", status.name());
 
     // `enum_dispatch`
-    println!("say_name_enum [{}]", status.name())
+    println!("say_name_enum [{}]", category.name())
 }
