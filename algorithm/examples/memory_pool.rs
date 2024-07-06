@@ -1,76 +1,98 @@
-struct MemoryPool<T>
-where
-    T: Default + Clone + Copy,
-{
-    // 定义内存池的数据结构
-    pool: Vec<T>,
+// #![allow(unused)]
+
+use std::{
+    alloc::{alloc, dealloc, Layout},
+    ptr,
+};
+
+struct MemoryPool<T: Default> {
+    pool: Vec<*mut T>, // 用于存储空闲内存块的指针
 }
 
-impl<T> MemoryPool<T>
-where
-    T: Default + Clone + Copy,
-{
-    // 实现内存池的构造函数
-    fn new() -> Self {
-        Self { pool: Vec::new() }
+impl<T: Default> MemoryPool<T> {
+    // 构造函数，初始化内存池
+    fn new(size: usize) -> Self {
+        let mut pool = Vec::with_capacity(size);
+        for _ in 0..size {
+            let pointer = unsafe {
+                let layout = Layout::new::<T>();
+                alloc(layout) as *mut T
+            };
+            unsafe {
+                ptr::write(pointer, T::default());
+            }
+            pool.push(pointer);
+        }
+        Self { pool }
     }
 
-    // 实现分配内存的方法
+    // 分配内存的方法，返回一个指向 T 的可选指针
     fn allocate(&mut self) -> Option<*mut T> {
-        let item = if self.pool.len() > 0 {
-            self.pool.pop()?
-        } else {
-            Default::default()
-        };
-
-        Some(Box::into_raw(Box::new(item))) //这里需要将T转为*T
+        self.pool.pop()
     }
 
-    // 实现回收内存的方法
-    fn deallocate(&mut self, pointer: *mut T) {
-        let item = unsafe { *pointer };
-        self.pool.push(item)
+    // 回收内存的方法，将指针重新放回内存池
+    fn deallocate(&mut self, pointer: *mut T, reset: bool) {
+        if reset {
+            unsafe {
+                ptr::write(pointer, T::default());
+            }
+        }
+
+        self.pool.push(pointer);
     }
 
-    fn len(&self) -> usize {
+    fn remain(&self) -> usize {
         self.pool.len()
     }
 }
 
+// 实现 Drop 特性，以便在内存池销毁时释放所有内存
+impl<T: Default> Drop for MemoryPool<T> {
+    fn drop(&mut self) {
+        while let Some(ptr) = self.pool.pop() {
+            unsafe {
+                let layout = Layout::new::<T>();
+                dealloc(ptr as *mut u8, layout);
+            }
+        }
+    }
+}
+
 fn main() {
-    let mut mp = MemoryPool::<i32>::new();
-    let pointer = mp.allocate().unwrap();
+    let mut pool = MemoryPool::<String>::new(10);
+
+    let ptr1 = pool.allocate().unwrap();
+    let ptr2 = pool.allocate().unwrap();
+
+    println!("remain: {}", pool.remain());
+
+    // 使用内存指针写入值
     unsafe {
-        *pointer = 100;
+        ptr::write(ptr1, "hello".to_string());
+        ptr::write(ptr2, "world".to_string());
     }
 
+    // 验证写入的值
     unsafe {
-        println!("Value at pointer: {}", *pointer);
-    }
-    mp.deallocate(pointer);
-
-    let mut mp = MemoryPool::<i32>::new();
-    let pointer = mp.allocate().unwrap();
-    unsafe {
-        *pointer = 100;
+        println!("Value at ptr1: {}", *ptr1);
+        println!("Value at ptr2: {}", *ptr2);
     }
 
+    // pool.deallocate(ptr1, true);
+    // pool.deallocate(ptr2, true);
+
+    pool.deallocate(ptr1, false);
+    pool.deallocate(ptr2, false);
+
+    let ptr1 = pool.allocate().unwrap();
+    let ptr2 = pool.allocate().unwrap();
+    let ptr3 = pool.allocate().unwrap();
+
+    // 验证写入的值
     unsafe {
-        println!("value at pointer: {}, pool len: {} ", *pointer, mp.len());
+        println!("Value at ptr1: {}", *ptr1);
+        println!("Value at ptr2: {}", *ptr2);
+        println!("Value at ptr3: {}", *ptr3);
     }
-    mp.deallocate(pointer);
-
-    println!("after deallocate pool len: {}", mp.len());
-
-    let pointer = mp.allocate().unwrap();
-    unsafe {
-        *pointer = 200;
-    }
-
-    unsafe {
-        println!("value at pointer: {}, pool len: {} ", *pointer, mp.len());
-    }
-    mp.deallocate(pointer);
-
-    println!("after deallocate pool len: {}", mp.len());
 }
