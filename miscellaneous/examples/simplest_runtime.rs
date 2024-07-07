@@ -23,6 +23,22 @@ fn main() {
     spawn_simple();
 }
 
+fn block_on_simple() {
+    // 调用 block_on 函数来阻塞执行异步任务，并打印 "Hello world"
+    block_on(async { println!("Hello world") });
+}
+
+fn block_on_sleep_wakeup() {
+    // 调用 block_on 函数来阻塞执行异步任务，存在多次休眠和唤醒操作
+    println!("Start {}", Local::now());
+    block_on(MyFuture {
+        id: 1,
+        start: Instant::now(),
+        duration: Duration::from_secs(10),
+    });
+    println!("Finish {}", Local::now());
+}
+
 fn spawn_simple() {
     println!("Start {}", chrono::Utc::now());
 
@@ -48,22 +64,6 @@ fn spawn_simple() {
 
     h1.join().unwrap();
     h2.join().unwrap();
-}
-
-fn block_on_sleep_wakeup() {
-    // 调用 block_on 函数来阻塞执行异步任务，存在多次休眠和唤醒操作
-    println!("Start {}", Local::now());
-    block_on(MyFuture {
-        id: 1,
-        start: Instant::now(),
-        duration: Duration::from_secs(10),
-    });
-    println!("Finish {}", Local::now());
-}
-
-fn block_on_simple() {
-    // 调用 block_on 函数来阻塞执行异步任务，并打印 "Hello world"
-    block_on(async { println!("Hello world") });
 }
 
 struct MyFuture {

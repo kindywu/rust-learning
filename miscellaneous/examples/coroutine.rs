@@ -105,10 +105,10 @@ impl CoroutineScheduler {
 
 fn main() {
     let c = Coroutine::new(|| 100);
-    let r1 = CoroutineScheduler::schedule(c);
-    let h1 = thread::spawn(move || {
-        let v = r1.recv().unwrap();
+    let r = CoroutineScheduler::schedule(c);
+    let h = thread::spawn(move || {
+        let v = r.recv().unwrap();
         println!("Finish 1 {}, value is {v}", chrono::Utc::now());
     });
-    h1.join().unwrap();
+    h.join().unwrap();
 }
