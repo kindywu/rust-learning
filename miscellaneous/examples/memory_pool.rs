@@ -1,4 +1,25 @@
-// #![allow(unused)]
+// 编写一个简单的内存池，能够分配和回收固定大小的内存块。内存池应该能够处理内存碎片，并尽可能高效地重用已释放的内存块。
+
+// struct MemoryPool<T> {
+//     // 定义内存池的数据结构
+// }
+
+// impl<T> MemoryPool<T> {
+//     // 实现内存池的构造函数
+//     fn new(size: usize) -> Self {
+//         // 你的代码
+//     }
+
+//     // 实现分配内存的方法
+//     fn allocate(&mut self) -> Option<*mut T> {
+//         // 你的代码
+//     }
+
+//     // 实现回收内存的方法
+//     fn deallocate(&mut self, pointer: *mut T) {
+//         // 你的代码
+//     }
+// }
 
 use std::{
     alloc::{alloc, dealloc, Layout},
@@ -60,7 +81,8 @@ impl<T: Default> Drop for MemoryPool<T> {
 }
 
 fn main() {
-    let mut pool = MemoryPool::<String>::new(10);
+    let size = 10;
+    let mut pool = MemoryPool::<String>::new(size);
 
     let ptr1 = pool.allocate().unwrap();
     let ptr2 = pool.allocate().unwrap();
@@ -94,5 +116,10 @@ fn main() {
         println!("Value at ptr1: {}", *ptr1);
         println!("Value at ptr2: {}", *ptr2);
         println!("Value at ptr3: {}", *ptr3);
+    }
+
+    // allocate out of capacity
+    for _ in 0..size {
+        println!("{:?}", pool.allocate());
     }
 }

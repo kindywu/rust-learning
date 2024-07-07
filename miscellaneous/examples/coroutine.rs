@@ -1,8 +1,41 @@
 #![allow(unused)]
 
-/*
- 实现一个简单的Rust协程库，支持协程的创建、调度和切换。你的实现应该能够处理协程的挂起和恢复，以及协程之间的数据传递。
-*/
+// 实现一个简单的Rust协程库，支持协程的创建、调度和切换。你的实现应该能够处理协程的挂起和恢复，以及协程之间的数据传递。
+
+// struct Coroutine<T> {
+//     // 定义协程的数据结构
+// }
+
+// impl<T> Coroutine<T> {
+//     // 实现协程的创建
+//     fn new<F>(f: F) -> Self
+//     where
+//         F: FnOnce() -> T,
+//     {
+//         // 你的代码
+//     }
+
+//     // 实现协程的运行
+//     fn resume(self) -> T {
+//         // 你的代码
+//     }
+// }
+
+// // 实现协程调度器
+// struct CoroutineScheduler {
+//     // 定义调度器的数据结构
+// }
+
+// impl CoroutineScheduler {
+//     // 实现协程的调度
+//     fn schedule<F, T>(&self, coroutine: Coroutine<F>) -> T
+//     where
+//         F: FnOnce() -> T,
+//     {
+//         // 你的代码
+//     }
+// }
+
 use std::sync::{Arc, Mutex};
 
 struct Coroutine {
