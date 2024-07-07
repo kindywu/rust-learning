@@ -5,6 +5,7 @@ edition = "2021"
 
 [dependencies]
 anyhow = { workspace = true }
+chrono = "0.4.38"
 num = { workspace = true }
 tokio = { version = "1.38.0", features = ["rt", "rt-multi-thread", "macros"] }
 waker-fn = "1.2.0"
