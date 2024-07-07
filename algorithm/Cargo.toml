@@ -7,3 +7,4 @@ edition = "2021"
 anyhow = { workspace = true }
 num = { workspace = true }
 tokio = { version = "1.38.0", features = ["rt", "rt-multi-thread", "macros"] }
+waker-fn = "1.2.0"
