@@ -1,5 +1,8 @@
 #![allow(unused)]
 
+/*
+ 实现一个简单的Rust协程库，支持协程的创建、调度和切换。你的实现应该能够处理协程的挂起和恢复，以及协程之间的数据传递。
+*/
 use std::sync::{Arc, Mutex};
 
 struct Coroutine {
