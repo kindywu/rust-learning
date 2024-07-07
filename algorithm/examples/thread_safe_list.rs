@@ -93,12 +93,12 @@ fn concurrency() -> anyhow::Result<()> {
 }
 
 #[derive(Debug)]
-struct Node<T: Default + Copy> {
+struct Node<T: Default + Copy + PartialEq> {
     value: T,
     next: Option<Arc<Mutex<Node<T>>>>,
 }
 
-impl<T: Default + Copy> Node<T> {
+impl<T: Default + Copy + PartialEq> Node<T> {
     fn new(value: T) -> Self {
         Self { value, next: None }
     }
@@ -109,40 +109,88 @@ impl<T: Default + Copy> Node<T> {
 }
 
 #[derive(Debug, Clone)]
-struct ThreadSafeList<T: Default + Copy> {
+struct ThreadSafeList<T: Default + Copy + PartialEq> {
     head: Option<Arc<Mutex<Node<T>>>>,
+    tail: Option<Arc<Mutex<Node<T>>>>,
 }
 
-impl<T: Default + Copy> ThreadSafeList<T> {
+impl<T: Default + Copy + PartialEq> ThreadSafeList<T> {
     // 实现构造函数
     fn new() -> Self {
         let head = Node::new(Default::default()).to_option_arc_mutex();
-        Self { head }
+        let tail = head.clone();
+        Self { head, tail }
     }
 
     // 实现插入元素的方法
+    // fn insert(&mut self, value: T) {
+    //     let current = self.head.clone();
+    //     if current.is_none() {
+    //         unreachable!()
+    //     }
+
+    //     let mut current: Arc<Mutex<Node<T>>> = current.unwrap();
+
+    //     loop {
+    //         let tmp = current.clone();
+    //         let mut tmp = tmp.lock().unwrap();
+    //         let next = tmp.next.clone();
+    //         if let Some(next) = next {
+    //             current = next;
+    //         } else {
+    //             tmp.next = Node::new(value).to_option_arc_mutex();
+    //             break;
+    //         }
+    //     }
+    // }
+
     fn insert(&mut self, value: T) {
-        let current = self.head.clone();
-        if current.is_none() {
-            unreachable!()
-        }
-
-        let mut current: Arc<Mutex<Node<T>>> = current.unwrap();
-
-        loop {
-            let tmp = current.clone();
-            let mut tmp = tmp.lock().unwrap();
-            let next = tmp.next.clone();
-            if let Some(next) = next {
-                current = next;
-            } else {
-                tmp.next = Node::new(value).to_option_arc_mutex();
-                break;
-            }
-        }
+        let new_node = Node::new(value).to_option_arc_mutex();
+        let tmp = self.tail.clone();
+        let tmp = tmp.unwrap();
+        let mut tmp = tmp.lock().unwrap();
+        tmp.next = new_node.clone();
+        self.tail = new_node;
     }
 
     // 实现删除元素的方法
+    // fn remove(&mut self) -> Option<T> {
+    //     let current = self.head.clone();
+    //     if current.is_none() {
+    //         unreachable!()
+    //     }
+
+    //     let mut current: Arc<Mutex<Node<T>>> = current.unwrap();
+
+    //     let value = loop {
+    //         // 重点：tmp == current，tmp2 == next，使用克隆变量tmp，而不用current和next是因为调用lock().unwrap会把变量消费掉
+    //         let tmp = current.clone();
+    //         let mut tmp = tmp.lock().unwrap();
+
+    //         if tmp.next.is_none() {
+    //             // 处理头节点
+    //             return None;
+    //         }
+
+    //         let next = tmp.next.clone().unwrap();
+
+    //         let tmp2 = next.clone();
+    //         let tmp2 = tmp2.lock().unwrap();
+    //         let next_next = tmp2.next.clone();
+
+    //         // 找到倒数第二个的节点，删除尾节点，设置它的Next为None，返回尾节点的值
+    //         if next_next.is_none() {
+    //             tmp.next.take();
+    //             let tmp = tmp2.value;
+    //             break tmp;
+    //         }
+
+    //         // current.next.next 不为None，移动到下个节点
+    //         current = next;
+    //     };
+    //     Some(value)
+    // }
+
     fn remove(&mut self) -> Option<T> {
         let current = self.head.clone();
         if current.is_none() {
@@ -169,6 +217,7 @@ impl<T: Default + Copy> ThreadSafeList<T> {
 
             // 找到倒数第二个的节点，删除尾节点，设置它的Next为None，返回尾节点的值
             if next_next.is_none() {
+                self.tail = Some(next);
                 tmp.next.take();
                 let tmp = tmp2.value;
                 break tmp;
