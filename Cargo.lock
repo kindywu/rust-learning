@@ -216,6 +216,7 @@ dependencies = [
  "chrono",
  "dotenv",
  "enum_dispatch",
+ "tokio",
 ]
 
 [[package]]
