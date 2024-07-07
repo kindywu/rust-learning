@@ -1,11 +1,12 @@
 use std::{
-    cell::Cell,
+    cell::RefCell,
     collections::{hash_map, HashMap},
 };
 
 pub struct Calculator {
     f: Box<dyn Fn(i64) -> i64>,
-    cache: Cell<HashMap<i64, i64>>, //内部可变性
+    // cache: Cell<HashMap<i64, i64>>, //内部可变性
+    cache: RefCell<HashMap<i64, i64>>, //内部可变性
 }
 
 impl Calculator {
@@ -15,12 +16,14 @@ impl Calculator {
     {
         Self {
             f: Box::new(f),
-            cache: Cell::new(HashMap::new()),
+            // cache: Cell::new(HashMap::new()),
+            cache: RefCell::new(HashMap::new()),
         }
     }
 
     pub fn eval(&self, input: i64) -> i64 {
-        let mut cache = self.cache.take();
+        // let mut cache = self.cache.take();
+        let mut cache = self.cache.borrow_mut();
 
         let value = match cache.entry(input) {
             hash_map::Entry::Occupied(entry) => entry.get().to_owned(),
@@ -30,7 +33,7 @@ impl Calculator {
                 value
             }
         };
-        self.cache.set(cache);
+        // self.cache.set(cache);
         value
     }
 }
