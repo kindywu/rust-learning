@@ -42,9 +42,10 @@ where
                 .spawn(move || {
                     for msg in rx {
                         println!("{} handle it", thread::current().name().unwrap());
-                        let f = msg.f;
-                        let result = f();
-                        msg.sender.send(result).unwrap();
+                        let result = (msg.f)();
+                        msg.sender
+                            .send(result)
+                            .unwrap_or_else(|e| eprintln!("Failed to send result: {}", e));
                     }
                 })
                 .unwrap();
@@ -80,20 +81,22 @@ where
     fn resume(self, scheduler: &CoroutineScheduler<T, F>) -> T {
         let (tx, rx) = oneshot::channel();
 
-        let msg = Msg::<T, F> {
+        let msg = Msg {
             f: self.func,
             sender: tx,
         };
 
-        {
-            let mut rng = rand::thread_rng();
-            let tx = scheduler
-                .sender_list
-                .choose(&mut rng)
-                .expect("arr is empty");
-            tx.send(msg).unwrap();
-        }
+        let mut rng = rand::thread_rng();
+        let tx = scheduler
+            .sender_list
+            .choose(&mut rng)
+            .expect("Sender list is empty");
+        tx.send(msg)
+            .unwrap_or_else(|e| eprintln!("Failed to send message: {}", e));
 
-        rx.recv().unwrap()
+        rx.recv().unwrap_or_else(|e| {
+            eprintln!("Failed to receive result: {}", e);
+            panic!("Coroutine execution failed");
+        })
     }
 }
