@@ -8,4 +8,6 @@ anyhow = { workspace = true }
 chrono = "0.4.38"
 dotenv = "0.15.0"
 enum_dispatch = "0.3.13"
+oneshot = "0.1.8"
+rand.workspace = true
 tokio = { version = "1.38.0", features = ["rt", "rt-multi-thread", "macros"] }
