@@ -1,3 +1,5 @@
+// 实现一个简单的Rust协程库，支持协程的创建、调度和切换。你的实现应该能够处理协程的挂起和恢复，以及协程之间的数据传递。
+
 use rand::seq::SliceRandom;
 use std::{
     sync::mpsc::{self, Sender},
@@ -7,7 +9,7 @@ use std::{
 fn main() {
     let scheduler = CoroutineScheduler::new(4);
     for i in 0..10 {
-        let c = Coroutine::new(move || i);
+        let c = Coroutine::new(move || i, &scheduler);
         let result = scheduler.schedule(c);
         println!("运行结束，结果：{}", result);
     }
@@ -59,44 +61,47 @@ where
     where
         T: Send + 'static,
     {
-        c.resume(self)
-    }
-}
-
-struct Coroutine<T, F>
-where
-    F: FnOnce() -> T,
-{
-    func: F,
-}
-
-impl<T, F> Coroutine<T, F>
-where
-    F: FnOnce() -> T,
-{
-    fn new(func: F) -> Self {
-        Coroutine { func }
+        c.resume()
     }
 
-    fn resume(self, scheduler: &CoroutineScheduler<T, F>) -> T {
+    fn execute(&self, f: F) -> T {
         let (tx, rx) = oneshot::channel();
 
-        let msg = Msg {
-            f: self.func,
-            sender: tx,
-        };
+        let msg = Msg { f, sender: tx };
 
         let mut rng = rand::thread_rng();
-        let tx = scheduler
+        let tx = self
             .sender_list
             .choose(&mut rng)
             .expect("Sender list is empty");
-        tx.send(msg)
-            .unwrap_or_else(|e| eprintln!("Failed to send message: {}", e));
+        tx.send(msg).unwrap();
 
         rx.recv().unwrap_or_else(|e| {
             eprintln!("Failed to receive result: {}", e);
             panic!("Coroutine execution failed");
         })
+    }
+}
+
+struct Coroutine<'a, T, F>
+where
+    F: FnOnce() -> T + Send + 'static,
+    T: Send + 'static,
+{
+    func: F,
+    scheduler: &'a CoroutineScheduler<T, F>,
+}
+
+impl<'a, T, F> Coroutine<'a, T, F>
+where
+    F: FnOnce() -> T + Send + 'static,
+    T: Send + 'static,
+{
+    fn new(func: F, scheduler: &'a CoroutineScheduler<T, F>) -> Self {
+        Coroutine { func, scheduler }
+    }
+
+    fn resume(self) -> T {
+        self.scheduler.execute(self.func)
     }
 }
