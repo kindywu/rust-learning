@@ -1,5 +1,5 @@
 [workspace]
-members = ["algorithm", "miscellaneous", "syntax"]
+members = ["algorithm", "miscellaneous", "projects/expr-eval", "syntax"]
 resolver = "2"
 
 
