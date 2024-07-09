@@ -13,3 +13,4 @@ mio = { version = "1.0.0", features = ["net", "os-poll"] }
 oneshot = "0.1.8"
 rand.workspace = true
 tokio = { version = "1.38.0", features = ["rt", "rt-multi-thread", "macros", "sync"] }
+tokio-stream = "0.1.15"
