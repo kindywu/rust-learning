@@ -50,12 +50,14 @@ struct Expr<'a> {
 }
 
 impl<'a> Expr<'a> {
+    // 创建算术表达式执行器
     pub fn new(expr: &'a str) -> Self {
         Self {
             iter: Tokenizer::new(expr).peekable(),
         }
     }
 
+    // 执行算术计算
     pub fn eval(&mut self) -> Result<i32> {
         let result = self.compute_expr(1)?;
         // 如果还有 Token 没有处理，说明表达式存在错误
@@ -65,6 +67,7 @@ impl<'a> Expr<'a> {
         Ok(result)
     }
 
+    // 真正执行算术计算
     fn compute_expr(&mut self, min_prec: i32) -> Result<i32> {
         let mut atom_lhs = self.compute_atom()?;
 
@@ -101,6 +104,7 @@ impl<'a> Expr<'a> {
         Ok(atom_lhs)
     }
 
+    // 真正执行算术单元计算
     pub fn compute_atom(&mut self) -> Result<i32> {
         match self.iter.peek() {
             Some(Token::Number(n)) => {
@@ -138,6 +142,7 @@ impl<'a> Tokenizer<'a> {
         }
     }
 
+    // 消费空格
     fn consume_whitespace(&mut self) {
         while let Some(&c) = self.tokens.peek() {
             if c.is_whitespace() {
@@ -148,6 +153,7 @@ impl<'a> Tokenizer<'a> {
         }
     }
 
+    // 解析数字
     fn scan_number(&mut self) -> Option<Token> {
         let mut num = String::new();
         while let Some(&c) = self.tokens.peek() {
@@ -160,10 +166,11 @@ impl<'a> Tokenizer<'a> {
         }
         match num.parse() {
             Ok(n) => Some(Token::Number(n)),
-            Err(_) => None,
+            Err(_) => None, // TODO: 这里有问题
         }
     }
 
+    // 解析操作符
     fn scan_operator(&mut self) -> Option<Token> {
         match self.tokens.next() {
             Some('+') => Some(Token::Plus),
@@ -181,11 +188,17 @@ impl<'a> Tokenizer<'a> {
 impl<'a> Iterator for Tokenizer<'a> {
     type Item = Token;
 
+    // 读取token
     fn next(&mut self) -> Option<Self::Item> {
+        // 消费空字符串
         self.consume_whitespace();
+        // 预读字符
         match self.tokens.peek() {
+            // 开始读取数字
             Some(c) if c.is_numeric() => self.scan_number(),
+            // 开始读取操作符
             Some(_) => self.scan_operator(),
+            // 不是数字也不是操作符，迭代器结束
             None => None,
         }
     }
@@ -205,7 +218,7 @@ enum Token {
 }
 
 impl Token {
-    // 是否计算操作符
+    // 是否运算操作符
     fn is_cal_operator(&self) -> bool {
         match self {
             Token::Plus | Token::Minus | Token::Multiply | Token::Divide | Token::Power => true,
@@ -213,7 +226,7 @@ impl Token {
         }
     }
 
-    // 获取计算操作符优先级
+    // 获取运算操作符优先级
     fn precedence(&self) -> i32 {
         match self {
             Token::Plus | Token::Minus => 1,
@@ -244,6 +257,7 @@ impl Token {
     }
 }
 
+// 支持打印
 impl Display for Token {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let n = match self {
