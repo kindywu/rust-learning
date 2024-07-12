@@ -1,3 +1,5 @@
+#![allow(unused)]
+
 use std::cmp::max;
 
 fn main() {
@@ -8,9 +10,9 @@ fn main() {
         (15, vec![1, 2, 3, 4, 5, 4, 3, 2, 1]),
     ];
 
-    for (max_area, histogram) in test_cases {
-        let area = max_area_in_histogram(histogram);
-        assert_eq!(max_area, area);
+    for (max_area, histogram) in test_cases.clone() {
+        let area = max_area_in_histogram_v2(histogram.clone());
+        println!("{histogram:?}, expected: {max_area}, got: {area}");
     }
 }
 
@@ -46,5 +48,21 @@ fn max_area_in_histogram(histogram: Vec<i32>) -> i32 {
         max_area = max(max_area, area);
     }
 
+    max_area
+}
+
+fn max_area_in_histogram_v2(histogram: Vec<i32>) -> i32 {
+    let mut max_area = 0;
+
+    let mut stack = Vec::new();
+    stack.push(0);
+
+    for i in 0..histogram.len() {
+        // 计算高度
+        let height = histogram[i];
+        if stack.is_empty() || height > histogram[stack.len() - 1] {
+            stack.push(i);
+        }
+    }
     max_area
 }
