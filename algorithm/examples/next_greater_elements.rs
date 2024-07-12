@@ -4,7 +4,8 @@
 fn main() {
     let nums = vec![2, 1, 2, 4, 3];
     let result = next_greater_elements(nums);
-    println!("{:?}", result); // Output: [4, 2, 4, -1, -1]
+    println!("{:?}", result);
+    assert_eq!(result, [4, 2, 4, -1, -1])
 }
 
 fn next_greater_elements(nums: Vec<i32>) -> Vec<i32> {
@@ -21,6 +22,7 @@ fn next_greater_elements(nums: Vec<i32>) -> Vec<i32> {
             }
         }
         stack.push(i);
+        // println!("stack: {stack:?}");
     }
 
     result
