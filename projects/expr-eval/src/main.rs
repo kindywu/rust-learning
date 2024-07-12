@@ -226,7 +226,7 @@ impl<'a> Expr<'a> {
         println!("{spaces}atom_lhs={atom_lhs}");
 
         loop {
-            let cur_token = self.iter.peek();
+            let cur_token = self.iter.peek(); //尝试
             if cur_token.is_none() {
                 println!("{spaces}complete");
                 break;
@@ -238,7 +238,7 @@ impl<'a> Expr<'a> {
             let token_precedence = token.precedence();
             if !token.is_operator() || token_precedence < min_prec {
                 println!(
-                    "{spaces}op={token} token_precedence={token_precedence} < min_prec={min_prec}"
+                    "{spaces}op={token} token_precedence={token_precedence} min_prec={min_prec}"
                 );
                 break;
             }
@@ -248,15 +248,15 @@ impl<'a> Expr<'a> {
                 next_prec += 1;
             }
             println!(
-                "{spaces}op={token} token_precedence={token_precedence} next_prec={next_prec}"
+                "{spaces}op={token} token_precedence={token_precedence} min_prec={min_prec} next_prec={next_prec}"
             );
-            self.iter.next();
+            self.iter.next(); // 真正消费
 
             // 递归计算右边的表达式
             let atom_rhs = self.compute_expr(next_prec, level + 1)?;
             println!("{spaces}atom_rhs={atom_rhs}");
 
-            // 得到了两边的值，进行计算
+            // 得到c两边的值，进行计算
             match token.compute(atom_lhs, atom_rhs) {
                 Some(res) => {
                     atom_lhs = {
@@ -274,7 +274,7 @@ impl<'a> Expr<'a> {
 
 fn main() {
     // let expr = "1+2-4+8-16";
-    let expr = "10+20*30-40";
+    let expr = "10+20*30^1-40";
     println!("{expr}");
     let mut expr = Expr::new(expr);
     let result = expr.eval();
