@@ -4,16 +4,19 @@ use std::cmp::max;
 
 fn main() {
     let test_cases = vec![
-        // (8, vec![1, 2, 3, 2, 3]),
-        // (9, vec![1, 2, 5, 4, 3]),
-        // (18, vec![2, 1, 5, 4, 9, 10]),
+        (8, vec![1, 2, 3, 2, 3]),
+        (9, vec![1, 2, 5, 4, 3]),
+        (18, vec![2, 1, 5, 4, 9, 10]),
         (9, vec![1, 2, 3, 1, 2, 3, 1, 2, 3]),
         (15, vec![1, 2, 3, 4, 5, 4, 3, 2, 1]),
     ];
 
     for (max_area, histogram) in test_cases.clone() {
+        let area = max_area_in_histogram(histogram.clone());
+        println!("max_area_in_histogram histogram: {histogram:?}, max area: expected= {max_area}, got= {area}");
+
         let area = max_area_in_histogram_v2(histogram.clone());
-        println!("histogram: {histogram:?}, max area: expected= {max_area}, got= {area}");
+        println!("max_area_in_histogram_v2 histogram: {histogram:?}, max area: expected= {max_area}, got= {area}");
     }
 }
 
@@ -74,9 +77,9 @@ fn max_area_in_histogram_v2(mut histogram: Vec<i32>) -> i32 {
 
             let width = left + right - 1;
 
-            println!(
-                "stack:{stack:?} i:{i} last:{last} left:{left} right:{right} height:{height} width:{width}"
-            );
+            // println!(
+            //     "stack:{stack:?} i:{i} last:{last} left:{left} right:{right} height:{height} width:{width}"
+            // );
 
             let area = height * (width as i32);
             max_area = max(max_area, area);
