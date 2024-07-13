@@ -4,6 +4,10 @@ use std::cmp::max;
 
 fn main() {
     let test_cases = vec![
+        (0, vec![]),
+        (996, vec![996, 1]),
+        (999, vec![996, 1, 999]),
+        (999, vec![1, 2, 3, 2, 999]),
         (8, vec![1, 2, 3, 2, 3]),
         (9, vec![1, 2, 5, 4, 3]),
         (18, vec![2, 1, 5, 4, 9, 10]),
@@ -55,6 +59,7 @@ fn max_area_in_histogram(histogram: Vec<i32>) -> i32 {
     max_area
 }
 
+// 时间复杂度为O(n)，空间复杂度O(n)
 fn max_area_in_histogram_v2(mut histogram: Vec<i32>) -> i32 {
     let mut max_area = 0;
 
@@ -68,18 +73,12 @@ fn max_area_in_histogram_v2(mut histogram: Vec<i32>) -> i32 {
             let last = stack[len];
             let height = histogram[last];
 
-            let left = if stack.len() > 1 {
-                last - stack[len - 1]
+            // 准备处理栈顶元素，前面元素的索引高度比它小，准备入栈前面的索引高度比它小，想减得到宽度
+            let width = if stack.len() > 1 {
+                i - stack[len - 1] - 1
             } else {
-                1
+                i //前面没有元素
             };
-            let right = i - last;
-
-            let width = left + right - 1;
-
-            // println!(
-            //     "stack:{stack:?} i:{i} last:{last} left:{left} right:{right} height:{height} width:{width}"
-            // );
 
             let area = height * (width as i32);
             max_area = max(max_area, area);
