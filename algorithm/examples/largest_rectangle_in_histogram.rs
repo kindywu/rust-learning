@@ -1,8 +1,53 @@
 #![allow(unused)]
 
+use core::panic;
 use std::cmp::max;
 
 fn main() {
+    // largest_rectangle_in_histogram();
+    largest_rectangle_in_matrix();
+}
+
+fn largest_rectangle_in_matrix() {
+    let test_cases = vec![
+        (
+            4,
+            vec![
+                vec![0, 1, 1, 0, 0],
+                vec![0, 1, 0, 1, 1],
+                vec![1, 1, 1, 0, 1],
+                vec![1, 1, 0, 1, 0],
+            ],
+        ),
+        (
+            5,
+            vec![
+                vec![1, 0, 1, 0, 0],
+                vec![1, 0, 1, 0, 1],
+                vec![1, 1, 1, 1, 1],
+                vec![1, 0, 0, 1, 0],
+            ],
+        ),
+        (
+            6,
+            vec![
+                vec![1, 0, 1, 0, 0],
+                vec![1, 0, 1, 1, 1],
+                vec![1, 1, 1, 1, 1],
+                vec![1, 1, 0, 1, 0],
+            ],
+        ),
+    ];
+
+    for (max_area, matrix) in test_cases.clone() {
+        let area = max_area_in_matrix(matrix.clone());
+        println!("max_area_in_matrix: ");
+        print_matrix(&matrix);
+        println!("max area: expected= {max_area}, got= {area}");
+    }
+}
+
+fn largest_rectangle_in_histogram() {
     let test_cases = vec![
         (0, vec![]),
         (996, vec![996, 1]),
@@ -90,4 +135,37 @@ fn max_area_in_histogram_v2(mut histogram: Vec<i32>) -> i32 {
     }
 
     max_area
+}
+
+// 计算矩阵中最大的四边形
+fn max_area_in_matrix(matrix: Vec<Vec<i32>>) -> i32 {
+    if matrix.len() == 0 {
+        return 0;
+    }
+    let len = matrix[0].len();
+    let mut histogram = vec![0; len];
+
+    let mut max_area = 0;
+
+    for h in matrix {
+        for i in 0..h.len() {
+            if h[i] == 0 {
+                histogram[i] = 0;
+            } else {
+                histogram[i] += 1;
+            }
+        }
+
+        max_area = max(max_area, max_area_in_histogram(histogram.clone()));
+        // println!("histogram: {histogram:?}, max_area: {max_area}");
+    }
+
+    max_area
+}
+
+// 打印矩阵
+fn print_matrix(matrix: &Vec<Vec<i32>>) {
+    for line in matrix {
+        println!("{line:?}");
+    }
 }
