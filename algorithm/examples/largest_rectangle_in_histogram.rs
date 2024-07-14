@@ -13,7 +13,7 @@ fn largest_rectangle_in_matrix() {
         (
             4,
             vec![
-                vec![0, 1, 1, 0, 0],
+                vec!{0, 1, 1, 0, 0},
                 vec![0, 1, 0, 1, 1],
                 vec![1, 1, 1, 0, 1],
                 vec![1, 1, 0, 1, 0],

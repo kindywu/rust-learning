@@ -5,7 +5,9 @@ edition = "2021"
 
 [dependencies]
 anyhow = { workspace = true }
+arc-swap = "1.7.1"
 chrono = "0.4.38"
+crossbeam-utils = "0.8.20"
 dotenv = "0.15.0"
 enum_dispatch = "0.3.13"
 loom = "0.7.2"
