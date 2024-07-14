@@ -1,5 +1,11 @@
 [workspace]
-members = ["algorithm", "miscellaneous", "projects/expr-eval", "syntax"]
+members = [
+    "algorithm",
+    "miscellaneous",
+    "projects/expr-eval",
+    "projects/slint-demo",
+    "syntax",
+]
 resolver = "2"
 
 
