@@ -37,11 +37,11 @@ impl<T: Default> MemoryPool<T> {
         for _ in 0..size {
             let pointer = unsafe {
                 let layout = Layout::new::<T>();
-                alloc(layout) as *mut T
-            };
-            unsafe {
+                // println!("{layout:?}");
+                let pointer = alloc(layout) as *mut T;
                 ptr::write(pointer, T::default());
-            }
+                pointer
+            };
             pool.push(pointer);
         }
         Self { pool }

@@ -1,9 +1,17 @@
+use std::{cell::RefCell, rc::Rc};
+
 fn main() {
-    let mut stack = Vec::new();
+    let i = 100;
+    let mut i_box = Box::new(i);
+    println!("{i_box}");
+    *i_box = 200;
+    println!("{i_box}");
 
-    stack.push(1);
-    stack.push(2);
+    let i_rc = Rc::new(i);
+    println!("{i_rc}");
 
-    println!("pop {:?}", stack.pop());
-    println!("pop {:?}", stack.pop());
+    let i_rc_refcell = Rc::new(RefCell::new(i));
+    println!("{}", i_rc_refcell.borrow());
+    *i_rc_refcell.borrow_mut() = 200;
+    println!("{}", i_rc_refcell.borrow());
 }
