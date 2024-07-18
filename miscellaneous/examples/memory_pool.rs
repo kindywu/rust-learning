@@ -33,16 +33,14 @@ struct MemoryPool<T: Default> {
 impl<T: Default> MemoryPool<T> {
     // 构造函数，初始化内存池
     fn new(size: usize) -> Self {
-        let mut pool = Vec::with_capacity(size);
+        let mut pool = Vec::new();
         for _ in 0..size {
-            let pointer = unsafe {
+            pool.push(unsafe {
                 let layout = Layout::new::<T>();
-                // println!("{layout:?}");
                 let pointer = alloc(layout) as *mut T;
                 ptr::write(pointer, T::default());
                 pointer
-            };
-            pool.push(pointer);
+            })
         }
         Self { pool }
     }
@@ -55,12 +53,9 @@ impl<T: Default> MemoryPool<T> {
     // 回收内存的方法，将指针重新放回内存池
     fn deallocate(&mut self, pointer: *mut T, reset: bool) {
         if reset {
-            unsafe {
-                ptr::write(pointer, T::default());
-            }
+            unsafe { ptr::write(pointer, T::default()) };
         }
-
-        self.pool.push(pointer);
+        self.pool.push(pointer)
     }
 
     fn remain(&self) -> usize {
