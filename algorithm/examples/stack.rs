@@ -27,13 +27,14 @@ impl<T> DynamicStack<T> {
     }
 }
 
-struct Stack<const N: usize, T: Copy> {
+struct Stack<const N: usize, T: Copy + Default> {
     top: usize,
     arr: [T; N],
 }
 
-impl<const N: usize, T: Copy> Stack<N, T> {
-    fn new(arr: [T; N]) -> Self {
+impl<const N: usize, T: Copy + Default> Stack<N, T> {
+    fn new() -> Self {
+        let arr = [T::default(); N];
         Self { arr, top: 0 }
     }
 
@@ -43,7 +44,7 @@ impl<const N: usize, T: Copy> Stack<N, T> {
             self.arr[self.top - 1] = v;
             return Ok(());
         }
-        Err(anyhow!(""))
+        Err(anyhow!("stack full"))
     }
 
     fn pop(&mut self) -> Option<T> {
@@ -78,13 +79,16 @@ mod tests {
 
     #[test]
     fn stack_should_work() {
-        let mut stack = Stack::new([0, 2]);
+        let mut stack = Stack::<3, _>::new();
 
         for _ in 0..3 {
             assert!(stack.push(1).is_ok());
             assert!(stack.push(2).is_ok());
-            assert!(stack.push(3).is_err());
+            assert!(stack.push(3).is_ok());
+            assert!(stack.push(4).is_err());
+            assert!(stack.push(5).is_err());
 
+            assert_eq!(Some(3), stack.pop());
             assert_eq!(Some(2), stack.pop());
             assert_eq!(Some(1), stack.pop());
             assert_eq!(None, stack.pop());
