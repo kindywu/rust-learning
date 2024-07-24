@@ -72,10 +72,15 @@ mod tests {
         {
             let mut tmp_buf = InlineBuf::new();
             tmp_buf.set_content(b"hello");
+
             buf = tmp_buf;
+            println!("{:?}", buf.as_bytes());
 
             tmp_buf = InlineBuf::new();
+            println!("{:?}", buf.as_bytes());
+
             tmp_buf.set_content(b"world");
+            println!("{:?}", buf.as_bytes());
         }
 
         assert_eq!(buf.as_bytes(), b"hello")
